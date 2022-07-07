@@ -20,12 +20,47 @@ class EffectType(Enum):
     after = 'after'
 
 
+class NodeColor(Enum):
+    red = 'red'
+    blue = 'blue'
+    green = 'green'
+
+
 class Node:
-    def __init__(self): ...
+    def __init__(self, key, color: list = None, connections: list = None):
+        self.key = key
+        self.character = None
+        self.color = color if color else [NodeColor.red]
+        self.connections = {} if not connections else {i.id: i for i in connections}
+
+    def add(self, node):
+        if self.key not in node.connections:
+            node.connections[self.key] = self
+        self.connections[node.key] = node
+
+    def __repr__(self):
+        return f'Node(key=\'{str(self.key)}\', color={self.color}, connections={str(self.connections.keys())})'
 
 
 class Map:
-    def __init__(self): ...
+    def __init__(self):
+        self.nodes = {}
+
+    def add_node(self, key, color: list = None):
+        if key not in self.nodes:
+            node = Node(key, color)
+            self.nodes[key] = node
+            return node
+
+    def add_connection(self, key1, key2):
+        if key1 not in self.nodes:
+            self.add_node(key1)
+        if key2 not in self.nodes:
+            self.add_node(key2)
+        self.nodes[key1].add(self.nodes[key2])
+
+    def __iter__(self):
+        return iter(self.nodes.values())
 
 
 class Effect:
@@ -39,7 +74,7 @@ class Card:
                  power: int = 0,
                  strengthening: int = 0,
                  effect: Effect = None):
-        self._type = card_type,
+        self.type = card_type,
         self.power = power
         self.strengthening = strengthening
         self.effect = effect if effect else Effect()
@@ -73,8 +108,8 @@ class Player:
 
 class Game:
     def __init__(self, _map=None, _id: str = None):
-        self._id = _id if _id else str(uuid4())
-        self._map = _map if _map else Map()
+        self.id = _id if _id else str(uuid4())
+        self.map = _map if _map else Map()
         self.players = []
 
     def check_player_name(self, name: str):
