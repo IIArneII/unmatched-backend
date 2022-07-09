@@ -2,7 +2,7 @@ from uuid import uuid4
 from enum import Enum
 
 
-class CardType(Enum):
+class EffectType(Enum):
     protection = 'protection'
     attack = 'attack'
     protection_attack = 'protection_attack'
@@ -14,7 +14,7 @@ class AttackType(Enum):
     ranged = True
 
 
-class EffectType(Enum):
+class UsageType(Enum):
     before = 'before'
     during = 'during'
     after = 'after'
@@ -24,6 +24,11 @@ class NodeColor(Enum):
     red = 'red'
     blue = 'blue'
     green = 'green'
+
+
+class CharacterName(Enum):
+    alice = 'Alice'
+    jabberwock = 'Jabberwock'
 
 
 class Node:
@@ -64,20 +69,22 @@ class Map:
 
 
 class Effect:
-    def __init__(self, effect_type: EffectType = EffectType.during, description: str = ''):
-        self.effect_type = effect_type
+    def __init__(self, usage_type: UsageType = UsageType.during,
+                 effect_type: EffectType = EffectType.attack,
+                 power: int = 0,
+                 strengthening: int = 0,
+                 description: str = ''):
+        self.type = effect_type,
+        self.power = power
+        self.strengthening = strengthening
+        self.usage_type = usage_type
         self.description = description
 
 
 class Card:
-    def __init__(self, card_type: CardType = CardType.attack,
-                 power: int = 0,
-                 strengthening: int = 0,
-                 effect: Effect = None):
-        self.type = card_type,
-        self.power = power
-        self.strengthening = strengthening
-        self.effect = effect if effect else Effect()
+    def __init__(self, effect: Effect, character: CharacterName = None):
+        self.character = character
+        self.effect = effect
 
 
 class Character:
@@ -85,15 +92,16 @@ class Character:
                  position: Node = None,
                  movement_length: int = 0,
                  attack_type: AttackType = AttackType.melee,
-                 minions: list = None):
+                 minions: list = None,
+                 hero: bool = True,
+                 hp: int = 12):
+        self.hp = hp
         self.name = name
         self.position = position
         self.movement_length = movement_length
         self.attack_type = attack_type
         self.minions = minions if minions else []
-
-    def add_minion(self, minion):
-        self.minions.append(minion)
+        self.hero = hero
 
 
 class Player:
